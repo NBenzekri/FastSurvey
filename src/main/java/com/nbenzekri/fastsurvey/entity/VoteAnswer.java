@@ -6,31 +6,18 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Document
-public class Poll extends AuditMetadata {
-
+public class VoteAnswer extends AuditMetadata {
     @Id
     private String id;
 
-    private String title;
+    private String answerId;
 
-    private boolean multipleQuestions;
-    @DBRef
-    private List<Question> questionList;
-    @DBRef
-    private List<PollUserVote> pollUserVotes;
-
-    public Poll(String title, boolean multipleQuestions) {
-        this.title = title;
-        this.multipleQuestions = multipleQuestions;
-    }
+    private String pollUserVoteId;
 }

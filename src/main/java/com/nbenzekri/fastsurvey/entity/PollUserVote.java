@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -16,21 +15,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document
-public class Poll extends AuditMetadata {
-
+public class PollUserVote extends AuditMetadata {
     @Id
     private String id;
 
-    private String title;
+    private String pollId;
 
-    private boolean multipleQuestions;
-    @DBRef
-    private List<Question> questionList;
-    @DBRef
-    private List<PollUserVote> pollUserVotes;
-
-    public Poll(String title, boolean multipleQuestions) {
-        this.title = title;
-        this.multipleQuestions = multipleQuestions;
-    }
+    private List<VoteAnswer> voteAnswers;
 }

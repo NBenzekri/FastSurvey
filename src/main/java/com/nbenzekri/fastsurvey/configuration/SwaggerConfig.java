@@ -13,21 +13,31 @@ import springfox.documentation.spring.web.plugins.Docket;
 public class SwaggerConfig {
 
     @Bean
-    public Docket postsApi() {
+    public Docket fastsurveyV1Api() {
         return new Docket(DocumentationType.SWAGGER_2)
-                .groupName("public-api")
-                .apiInfo(apiInfo())
+                .groupName("fastsurvey-api-v1")
+                .apiInfo(new ApiInfoBuilder()
+                        .title("Fast Survey API")
+                        .description("Documentation Fast Survey API v1.0")
+                        .version("1.0")
+                        .build())
                 .select()
-                .paths(PathSelectors.any())
+                .paths(PathSelectors.regex("/api/v1.*"))
                 .apis(RequestHandlerSelectors.basePackage("com.nbenzekri.fastsurvey.controller"))
                 .build();
     }
-
-    private ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-                .title("Fast Survey API")
-                .description("Documentation Fast Survey API v1.0")
-                .version("1.0")
+    @Bean
+    public Docket fastsurveyV2Api() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("fastsurvey-api-v2")
+                .apiInfo(new ApiInfoBuilder()
+                        .title("Fast Survey API")
+                        .description("Documentation of Fast Survey API v2.0")
+                        .version("2.0")
+                        .build())
+                .select()
+                .paths(PathSelectors.regex("/api/v2.*"))
+                .apis(RequestHandlerSelectors.basePackage("com.nbenzekri.fastsurvey.controller"))
                 .build();
     }
 }
