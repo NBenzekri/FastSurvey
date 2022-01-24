@@ -1,5 +1,7 @@
 package com.nbenzekri.fastsurvey.dto;
 
+import com.nbenzekri.fastsurvey.dto.PollUserVoteDTO;
+import com.nbenzekri.fastsurvey.dto.QuestionDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

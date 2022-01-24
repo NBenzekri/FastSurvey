@@ -1,11 +1,15 @@
 package com.nbenzekri.fastsurvey.service;
 
 import com.nbenzekri.fastsurvey.entity.Poll;
+import com.nbenzekri.fastsurvey.exception.BadRequestException;
 import com.nbenzekri.fastsurvey.exception.NoSuchElementFoundException;
+import com.nbenzekri.fastsurvey.repository.AnswerRepository;
 import com.nbenzekri.fastsurvey.repository.PollRepository;
+import com.nbenzekri.fastsurvey.repository.QuestionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +21,8 @@ public class PollServiceImpl implements IGenericService<Poll> {
 
     @Autowired
     private PollRepository pollRepository;
+    private QuestionRepository questionRepository;
+    private AnswerRepository answerRepository;
 
     @Override
     public List<Poll> findAll() {
@@ -25,21 +31,43 @@ public class PollServiceImpl implements IGenericService<Poll> {
 
     @Override
     public Poll findById(String id) {
-        return this.pollRepository.findById(id).orElseThrow(() -> new NoSuchElementFoundException("Poll Not found!"));
+        if (id == null) {
+            throw new BadRequestException("Request param can't be null . " + id);
+        }
+        return this.pollRepository.findById(id).orElseThrow(() -> new NoSuchElementFoundException("Poll Not found with id: " + id));
     }
 
+    /**
+     * Save new Poll to the database
+     * a Poll has a title and a list of question in the dto
+     *
+     * @param entity
+     * @return
+     */
     @Override
     public Poll save(Poll entity) {
-        return this.pollRepository.insert(entity);
+        try {
+            return this.pollRepository.insert(entity);
+        } catch (DuplicateKeyException ex) {
+            logger.error(ex.toString());
+            throw new DuplicateKeyException("Duplicate Key error!");
+        }
     }
 
     @Override
     public Poll update(String id, Poll entity) {
-        return null;
+        Poll poll = this.findById(id);
+        poll.setTitle(entity.getTitle());
+        poll.setMultipleQuestions(entity.isMultipleQuestions());
+        return this.pollRepository.save(poll);
     }
 
     @Override
     public void deleteById(String id) {
-
+        if (id == null) {
+            throw new BadRequestException(" Request param can't be null . " + id);
+        }
+        this.pollRepository.delete(this.findById(id));
+        logger.info("Poll {} has been deleted!", id);
     }
 }

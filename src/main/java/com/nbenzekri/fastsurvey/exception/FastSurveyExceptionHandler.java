@@ -7,9 +7,11 @@ import com.nbenzekri.fastsurvey.dto.ResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -18,7 +20,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.io.IOException;
 import java.util.Objects;
 
 @Slf4j(topic = "GLOBAL_EXCEPTION_HANDLER")
@@ -35,6 +36,7 @@ public class FastSurveyExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleConflict(Exception ex, WebRequest request) {
 
         log.error(ex.getMessage());
+        ex.printStackTrace();
         return handleExceptionInternal(
                 ex,
                 new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getMessage()),
@@ -43,11 +45,37 @@ public class FastSurveyExceptionHandler extends ResponseEntityExceptionHandler {
                 request);
     }
 
+    @ExceptionHandler(value = {DuplicateKeyException.class, BadRequestException.class})
+    protected ResponseEntity<Object> handleDuplicateKeyException(Exception ex, WebRequest request) {
+
+        log.error(ex.getMessage());
+        ex.printStackTrace();
+        return handleExceptionInternal(
+                ex,
+                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()),
+                new HttpHeaders(),
+                HttpStatus.BAD_REQUEST,
+                request);
+    }
+
+    @Override
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+
+        log.error(ex.getMessage());
+        ex.printStackTrace();
+        return handleExceptionInternal(
+                ex,
+                new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage()),
+                new HttpHeaders(),
+                HttpStatus.BAD_REQUEST,
+                request);
+    }
     @ExceptionHandler({InvalidFormatException.class, MismatchedInputException.class})
     public ResponseEntity<ResponseDTO<String>> handlerIllegalArgumentException(JsonProcessingException exception,
-                                                                               WebRequest request) throws IOException {
+                                                                               WebRequest request) {
         log.error(exception.getMessage(), exception);
-        return new ResponseDTO<String>(500, "Invalid Json").buildOk();
+        return new ResponseDTO<>(500, "Invalid Json").buildOk();
 
     }
 
@@ -57,7 +85,9 @@ public class FastSurveyExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpHeaders headers,
                                                                   HttpStatus status,
                                                                   WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.value(), "Validation error. Check 'errors' field for details.");
+        log.error(ex.getMessage());
+        ErrorResponse errorResponse =
+                new ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.value(), "Validation error. Check 'errors' field for details.");
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
             errorResponse.addValidationError(fieldError.getField(), fieldError.getDefaultMessage());
         }
@@ -74,7 +104,8 @@ public class FastSurveyExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<Object> handleAllUncaughtException(Exception exception, WebRequest request) {
-        log.error("Unknown error occurred", exception);
+        log.error("Unexpected error occurred", exception);
+        exception.printStackTrace();
         return buildErrorResponse(
                 exception,
                 "Unknown error occurred",
@@ -97,7 +128,8 @@ public class FastSurveyExceptionHandler extends ResponseEntityExceptionHandler {
                                                       HttpStatus httpStatus,
                                                       WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(httpStatus.value(), message);
-        if (printStackTrace && isTraceOn(request)) {
+        //TODO: CHANGE THE OPERATOR TO && IN PROD
+        if (printStackTrace || isTraceOn(request)) {
             errorResponse.setStackTrace(ExceptionUtils.getStackTrace(exception));
         }
         return ResponseEntity.status(httpStatus).body(errorResponse);

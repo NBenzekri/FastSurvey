@@ -1,13 +1,10 @@
 package com.nbenzekri.fastsurvey.entity;
 
 import com.nbenzekri.fastsurvey.configuration.audit.AuditMetadata;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.util.List;
 
@@ -15,6 +12,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Document
 public class Poll extends AuditMetadata {
 
@@ -24,10 +22,6 @@ public class Poll extends AuditMetadata {
     private String title;
 
     private boolean multipleQuestions;
-    @DBRef
-    private List<Question> questionList;
-    @DBRef
-    private List<PollUserVote> pollUserVotes;
 
     public Poll(String title, boolean multipleQuestions) {
         this.title = title;

@@ -17,7 +17,9 @@ public class VoteAnswer extends AuditMetadata {
     @Id
     private String id;
 
-    private String answerId;
-
     private String pollUserVoteId;
+
+    private String questionId;
+
+    private String answerId;
 }

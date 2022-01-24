@@ -3,27 +3,22 @@ package com.nbenzekri.fastsurvey.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 
-import java.time.LocalDateTime;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class QuestionDTO {
-    private String id;
-
+@Validated
+public class QuestionSaveDTO {
+    @NotBlank(message = "Question title is empty")
     private String questionTitle;
 
     private boolean multipleAnswers;
 
     private String description;
 
-    private String pollId;
-
-    private List<AnswerDTO> answers;
-
-    private LocalDateTime createdDate;
-
-    private LocalDateTime lastModifiedDate;
+    private List<AnswerSaveDTO> answers;
 }
