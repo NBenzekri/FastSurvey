@@ -4,6 +4,7 @@ import com.nbenzekri.fastsurvey.entity.Answer;
 import com.nbenzekri.fastsurvey.exception.BadRequestException;
 import com.nbenzekri.fastsurvey.exception.NoSuchElementFoundException;
 import com.nbenzekri.fastsurvey.repository.AnswerRepository;
+import com.nbenzekri.fastsurvey.util.CommonConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class AnswerService implements IGenericService<Answer> {
     @Override
     public Answer findById(String id) {
         if (id == null) {
-            throw new BadRequestException(" Request param can't be null . " + id);
+            throw new BadRequestException(CommonConstant.BAD_REQUEST_PARAM + id);
         }
         return this.answerRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementFoundException("Answer not found with id: " + id));
@@ -57,7 +58,7 @@ public class AnswerService implements IGenericService<Answer> {
     @Override
     public void deleteById(String id) {
         if (id == null) {
-            throw new BadRequestException(" Request param can't be null . " + id);
+            throw new BadRequestException(CommonConstant.BAD_REQUEST_PARAM + id);
         }
         this.answerRepository.delete(this.findById(id));
         logger.info("Answer oll {} has been deleted!", id);

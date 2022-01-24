@@ -14,6 +14,8 @@ public class VoteAnswersDTO {
 
     private String answerId;
 
+    private String questionId;
+
     private String pollUserVoteId;
 
     private LocalDateTime createdDate;

@@ -129,7 +129,7 @@ public class FastSurveyExceptionHandler extends ResponseEntityExceptionHandler {
                                                       WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(httpStatus.value(), message);
         //TODO: CHANGE THE OPERATOR TO && IN PROD
-        if (printStackTrace || isTraceOn(request)) {
+        if (printStackTrace && isTraceOn(request)) {
             errorResponse.setStackTrace(ExceptionUtils.getStackTrace(exception));
         }
         return ResponseEntity.status(httpStatus).body(errorResponse);

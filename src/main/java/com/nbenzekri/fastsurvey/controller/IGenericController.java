@@ -8,13 +8,13 @@ import java.util.Map;
 
 public interface IGenericController<T,S> {
 
-     ResponseEntity<ResponseDTO<List<T>>> getPolls();
+     ResponseEntity<ResponseDTO<List<T>>> getAll();
 
-     ResponseEntity<ResponseDTO<T>> getPollById(String id);
+     ResponseEntity<ResponseDTO<T>> getById(String id);
 
-     ResponseEntity<ResponseDTO<T>> createPoll(S entityDto);
+     ResponseEntity<ResponseDTO<T>> create(S entityDto);
 
-     ResponseEntity<ResponseDTO<T>> updatePoll(String id, T entityDto);
+     ResponseEntity<ResponseDTO<T>> update(String id, T entityDto);
 
-     ResponseEntity<ResponseDTO<Map<String, Boolean>>> deletePoll(String id);
+     ResponseEntity<ResponseDTO<Map<String, Boolean>>> delete(String id);
 }
