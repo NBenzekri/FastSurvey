@@ -32,6 +32,7 @@ public class QuestionController {
     @DeleteMapping("/v1/questions/{id}")
     public ResponseEntity<ResponseDTO<Map<String, Boolean>>> deleteQuestion(@PathVariable String id) {
         logger.info("Delete question with id: " + id);
+
         this.questionService.findById(id);
         this.answerService.findByQuestionId(id).forEach(answer -> this.answerService.deleteById(answer.getId()));
         this.questionService.deleteById(id);
