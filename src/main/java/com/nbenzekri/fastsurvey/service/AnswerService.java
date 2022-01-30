@@ -44,7 +44,7 @@ public class AnswerService implements IGenericService<Answer> {
     public List<Answer> save(String questionId, List<Answer> answers) {
         answers.forEach(answer -> answer.setQuestionId(questionId));
         return answers.stream()
-                .map(answer -> this.answerRepository.save(answer))
+                .map(answer -> this.answerRepository.insert(answer))
                 .collect(Collectors.toList());
     }
 

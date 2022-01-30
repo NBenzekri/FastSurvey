@@ -1,13 +1,18 @@
 package com.nbenzekri.fastsurvey.controller;
 
 import com.nbenzekri.fastsurvey.dto.*;
+import com.nbenzekri.fastsurvey.dto.response.ResponseDTO;
 import com.nbenzekri.fastsurvey.entity.Answer;
 import com.nbenzekri.fastsurvey.entity.Poll;
 import com.nbenzekri.fastsurvey.entity.Question;
 import com.nbenzekri.fastsurvey.service.AnswerService;
 import com.nbenzekri.fastsurvey.service.PollServiceImpl;
+import com.nbenzekri.fastsurvey.service.PollUserVoteService;
 import com.nbenzekri.fastsurvey.service.QuestionService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +27,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1/polls")
 @Api(value = "PollController", tags = "Poll controller")
 public class PollControllerImpl implements IGenericController<PollDTO, PollSaveDTO> {
 
@@ -38,20 +43,34 @@ public class PollControllerImpl implements IGenericController<PollDTO, PollSaveD
     private AnswerService answerService;
 
     @Autowired
+    private PollUserVoteService pollUserVoteService;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     @Override
-    @GetMapping("/v1/polls/{id}")
+    @ApiOperation(value = "GET a poll by the given ID", response = PollDTO.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully retrieved list"),
+            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+            @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+            @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
+            @ApiResponse(code = 500, message = "Unexpected error occurred")
+    })
+    @GetMapping("/{id}")
     public ResponseEntity<ResponseDTO<PollDTO>> getById(@PathVariable String id) {
         _logger.info("Get Poll By ID " + id);
         PollDTO pollDto = modelMapper.map(this.pollServiceImpl.findById(id), PollDTO.class);
         pollDto.setQuestionList(this.getPollQuestionsDTOs(id));
+        pollDto.setPollUserVotes(this.getPollUserVoteDTOSByPollId(id));
         // get the votes of the poll
         return new ResponseDTO<>(pollDto).buildOk();
     }
 
+    //  TODO should add get polls by user also!
     @Override
-    @GetMapping("/v1/polls")
+    @ApiOperation(value = "GET all the polls")
+    @GetMapping("")
     public ResponseEntity<ResponseDTO<List<PollDTO>>> getAll() {
         _logger.info("Get All Polls");
         List<PollDTO> pollDTOS = pollServiceImpl
@@ -61,12 +80,14 @@ public class PollControllerImpl implements IGenericController<PollDTO, PollSaveD
                 .collect(Collectors.toList());
         pollDTOS.forEach(pollDTO -> {
             pollDTO.setQuestionList(this.getPollQuestionsDTOs(pollDTO.getId()));
+            pollDTO.setPollUserVotes(this.getPollUserVoteDTOSByPollId(pollDTO.getId()));
         });
         return new ResponseDTO<>(pollDTOS).buildOk();
     }
 
     @Override
-    @PostMapping("/v1/polls")
+    @ApiOperation(value = "Create new Poll")
+    @PostMapping("")
     public ResponseEntity<ResponseDTO<PollDTO>> create(@RequestBody @Valid PollSaveDTO pollSaveDto) {
         _logger.info("Create new Poll");
         // save the Poll
@@ -77,8 +98,7 @@ public class PollControllerImpl implements IGenericController<PollDTO, PollSaveD
                 .map(questionSaveDTO -> modelMapper.map(questionSaveDTO, Question.class))
                 .collect(Collectors.toList());
         questionList.forEach(q -> q.setPollId(pollDTO.getId()));
-        // save the question with PollID
-        // and save the answers with their question ID
+        // save the question with PollID and save the answers with their question ID
         pollSaveDto
                 .getQuestionList()
                 .forEach(questionSaveDTO -> {
@@ -93,14 +113,14 @@ public class PollControllerImpl implements IGenericController<PollDTO, PollSaveD
                     this.answerService.save(question.getId(), answersToSave);
                 });
         //Get the question list of the inserted poll to send it back to the client with the pollDTO
-        List<QuestionDTO> questionDTOS = getPollQuestionsDTOs(pollDTO.getId());
-        pollDTO.setQuestionList(questionDTOS);
-
+        pollDTO.setQuestionList(getPollQuestionsDTOs(pollDTO.getId()));
+        pollDTO.setPollUserVotes(this.getPollUserVoteDTOSByPollId(pollDTO.getId()));
         return new ResponseDTO<>(pollDTO).buildCreated();
     }
 
     @Override
-    @PutMapping("/v1/polls/{id}")
+    @ApiOperation(value = "Update a poll of given id by the given payload")
+    @PutMapping("/{id}")
     public ResponseEntity<ResponseDTO<PollDTO>> update(@PathVariable String id, @RequestBody PollDTO pollDto) {
         _logger.info("Update Poll with id: " + id);
         PollDTO pollDTO = modelMapper.map(this.pollServiceImpl.update(id, modelMapper.map(pollDto, Poll.class)), PollDTO.class);
@@ -126,7 +146,8 @@ public class PollControllerImpl implements IGenericController<PollDTO, PollSaveD
     }
 
     @Override
-    @DeleteMapping("/v1/polls/{id}")
+    @ApiOperation(value = "Delete a poll by the given ID!")
+    @DeleteMapping("/{id}")
     public ResponseEntity<ResponseDTO<Map<String, Boolean>>> delete(@PathVariable String id) {
         _logger.info("Delete Poll with Id: " + id);
         this.pollServiceImpl.deleteById(id);
@@ -142,6 +163,7 @@ public class PollControllerImpl implements IGenericController<PollDTO, PollSaveD
     }
 
     /**
+     * HELPERS
      * Get the Questions of a spesific POLL
      *
      * @return List of Questions DTOs
@@ -161,5 +183,18 @@ public class PollControllerImpl implements IGenericController<PollDTO, PollSaveD
                             .collect(Collectors.toList()));
         });
         return questionDTOS;
+    }
+
+    /**
+     * @param id
+     * @return
+     */
+    private List<PollUserVoteDTO> getPollUserVoteDTOSByPollId(String id) {
+        List<PollUserVoteDTO> pollUserVoteDTOS = this.pollUserVoteService
+                .findByPollId(id)
+                .stream()
+                .map(pollUserVote -> modelMapper.map(pollUserVote, PollUserVoteDTO.class))
+                .collect(Collectors.toList());
+        return pollUserVoteDTOS;
     }
 }

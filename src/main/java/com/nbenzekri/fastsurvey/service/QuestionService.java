@@ -27,6 +27,7 @@ public class QuestionService implements IGenericService<Question> {
 
     @Override
     public Question findById(String id) {
+        logger.error("id: {} ", id);
         if (id == null) {
             throw new BadRequestException(CommonConstant.BAD_REQUEST_PARAM + id);
         }

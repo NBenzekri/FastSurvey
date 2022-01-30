@@ -1,6 +1,6 @@
 package com.nbenzekri.fastsurvey.controller;
 
-import com.nbenzekri.fastsurvey.dto.ResponseDTO;
+import com.nbenzekri.fastsurvey.dto.response.ResponseDTO;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;

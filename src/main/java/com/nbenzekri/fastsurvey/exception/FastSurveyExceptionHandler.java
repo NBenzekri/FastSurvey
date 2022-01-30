@@ -3,7 +3,7 @@ package com.nbenzekri.fastsurvey.exception;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.nbenzekri.fastsurvey.dto.ResponseDTO;
+import com.nbenzekri.fastsurvey.dto.response.ResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -108,7 +108,7 @@ public class FastSurveyExceptionHandler extends ResponseEntityExceptionHandler {
         exception.printStackTrace();
         return buildErrorResponse(
                 exception,
-                "Unknown error occurred",
+                "Unexpected error occurred",
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 request);
     }

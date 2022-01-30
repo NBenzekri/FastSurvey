@@ -10,15 +10,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VoteAnswersDTO {
-    private String id;
-
-    private String answerId;
-
     private String questionId;
 
-    private String pollUserVoteId;
-
-    private LocalDateTime createdDate;
-
-    private LocalDateTime lastModifiedDate;
-}
+    private String answerId;}

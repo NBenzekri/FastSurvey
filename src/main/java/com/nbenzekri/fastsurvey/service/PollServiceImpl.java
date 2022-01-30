@@ -22,7 +22,9 @@ public class PollServiceImpl implements IGenericService<Poll> {
 
     @Autowired
     private PollRepository pollRepository;
+    @Autowired
     private QuestionRepository questionRepository;
+    @Autowired
     private AnswerRepository answerRepository;
 
     @Override

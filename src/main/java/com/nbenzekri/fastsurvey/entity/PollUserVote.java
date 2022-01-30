@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.util.List;
 
@@ -22,5 +21,9 @@ public class PollUserVote extends AuditMetadata {
 
     private String pollId;
 
-    // todo: add user id
+    private List<VoteAnswer> voteAnswers;
+
+    public PollUserVote(String pollId) {
+        this.pollId = pollId;
+    }
 }

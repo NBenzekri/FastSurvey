@@ -1,4 +1,4 @@
-package com.nbenzekri.fastsurvey.dto;
+package com.nbenzekri.fastsurvey.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

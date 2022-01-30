@@ -1,7 +1,5 @@
 package com.nbenzekri.fastsurvey.dto;
 
-import com.nbenzekri.fastsurvey.dto.PollUserVoteDTO;
-import com.nbenzekri.fastsurvey.dto.QuestionDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,16 +17,12 @@ public class PollDTO {
 
     private String id;
 
-    @NotBlank(message = "title is mandatory")
     private String title;
 
-    @NotNull(message = "field not null!")
     private boolean multipleQuestions;
 
-    @NotNull(message = "field not null!")
     private List<QuestionDTO> questionList;
 
-    @NotNull(message = "field not null!")
     private List<PollUserVoteDTO> pollUserVotes;
 
     private LocalDateTime createdDate;

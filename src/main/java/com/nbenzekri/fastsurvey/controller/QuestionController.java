@@ -1,9 +1,10 @@
 package com.nbenzekri.fastsurvey.controller;
 
-import com.nbenzekri.fastsurvey.dto.ResponseDTO;
+import com.nbenzekri.fastsurvey.dto.response.ResponseDTO;
 import com.nbenzekri.fastsurvey.service.AnswerService;
 import com.nbenzekri.fastsurvey.service.QuestionService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ public class QuestionController {
     @Autowired
     private AnswerService answerService;
 
+    @ApiOperation(value = "Delete a Question by the given ID")
     @DeleteMapping("/v1/questions/{id}")
     public ResponseEntity<ResponseDTO<Map<String, Boolean>>> deleteQuestion(@PathVariable String id) {
         logger.info("Delete question with id: " + id);
